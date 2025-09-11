@@ -95,7 +95,8 @@ const TicketDetail = ({ id, fullName }: { id?: string; fullName?: string }) => {
           </div>
 
           <p className="mt-6">
-            Mười năm – một chặng đường không dài nhưng đủ để tập thể AN VUI
+            Mười năm – một chặng đường không dài nhưng đủ để tập thể{" "}
+            <strong>AN VUI</strong>
             khẳng định bản lĩnh và khát vọng của mình. Nhìn lại hành trình đã
             qua, chúng ta tự hào vì đã cùng nhau vượt qua biết bao thử thách để
             hôm nay có thể ngồi lại, chia sẻ, và cùng nhau viết tiếp những dấu
@@ -221,15 +222,15 @@ const TicketDetail = ({ id, fullName }: { id?: string; fullName?: string }) => {
           </div>
 
           <p className="mt-6">
-            Mười năm – một chặng đường không dài nhưng đủ để tập thể AN VUI
-            khẳng định bản lĩnh và khát vọng của mình. Nhìn lại hành trình đã
-            qua, chúng ta tự hào vì đã cùng nhau vượt qua biết bao thử thách để
-            hôm nay có thể ngồi lại, chia sẻ, và cùng nhau viết tiếp những dấu
-            mốc đáng nhớ. Cảm ơn những người đồng hành, hậu phương vững chắc đã
-            luôn hiện diện trong hành trình ấy. Chính sự gắn bó và tin tưởng đã
-            tạo nên sức mạnh cho <strong>AN VUI</strong>. Chúng tôi trân trọng
-            và mong được đón tiếp bạn tại sự kiện kỷ niệm 10 năm đầy ý nghĩa
-            này.
+            Mười năm – một chặng đường không dài nhưng đủ để tập thể{" "}
+            <strong>AN VUI</strong> khẳng định bản lĩnh và khát vọng của mình.
+            Nhìn lại hành trình đã qua, chúng ta tự hào vì đã cùng nhau vượt qua
+            biết bao thử thách để hôm nay có thể ngồi lại, chia sẻ, và cùng nhau
+            viết tiếp những dấu mốc đáng nhớ. Cảm ơn những người đồng hành, hậu
+            phương vững chắc đã luôn hiện diện trong hành trình ấy. Chính sự gắn
+            bó và tin tưởng đã tạo nên sức mạnh cho <strong>AN VUI</strong>.
+            Chúng tôi trân trọng và mong được đón tiếp bạn tại sự kiện kỷ niệm
+            10 năm đầy ý nghĩa này.
           </p>
 
           <div className="flex justify-between mt-auto">
