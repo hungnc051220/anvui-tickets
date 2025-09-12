@@ -5,7 +5,7 @@
   },
   {
     "id": "SN10Y-2",
-    "fullName": "Chị Bùi Thị Chi (Phu nhân Anh Bùi Công Mạnh)"
+    "fullName": "Chị Bùi Thị Chi (Phu nhân anh Bùi Công Mạnh)"
   },
   {
     "id": "SN10Y-3",
@@ -13,7 +13,7 @@
   },
   {
     "id": "SN10Y-4",
-    "fullName": "Cháu Bùi Hà Chi (Con anh Bùi Công Mạnh)"
+    "fullName": "Cháu Bùi Hà Nhi (Con anh Bùi Công Mạnh)"
   },
   {
     "id": "SN10Y-5",
@@ -205,7 +205,7 @@
   },
   {
     "id": "SN10Y-55",
-    "fullName": "Chị Đào Thị Thanh Nhàn (Cổ đông)"
+    "fullName": "Chị Đào Thị Thanh Nhàn (Phòng kế toán)"
   },
   {
     "id": "SN10Y-56",
@@ -222,5 +222,9 @@
   {
     "id": "SN10Y-59",
     "fullName": "Chị Nguyễn Thuỳ Linh (Vợ anh Phan Thế Khang)"
+  },
+  {
+    "id": "SN10Y-60",
+    "fullName": "Anh Phan Trường Giang"
   }
 ]
