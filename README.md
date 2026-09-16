@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vé mời AN VUI
 
-## Getting Started
+Ứng dụng Next.js hiển thị video sự kiện tại `/`, danh sách khách mời riêng tại `/khach-moi` và vé riêng theo mã.
 
-First, run the development server:
+## Cấu hình
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Dùng Node.js 24 trở lên. Sao chép `.env.example` thành `.env` tại thư mục gốc (file `.env` đã được Git bỏ qua):
+
+```env
+DATABASE_URL="postgresql://..."
+GUEST_LIST_SESSION_SECRET="chuoi-ngau-nhien-dai-it-nhat-32-ky-tu"
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`DATABASE_URL` dùng URL kết nối Postgres có TLS; URL pooler của Neon hoạt động với cấu hình hiện tại. `GUEST_LIST_SESSION_SECRET` dùng để ký cookie phiên xem danh sách. Mật khẩu danh sách được cố định trong mã server là `anvui68`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Chạy ứng dụng
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+yarn install
+yarn db:setup
+yarn dev
+```
 
-## Learn More
+`db:setup` tạo bảng `guests` nếu chưa có. Trang chủ `/` phát video Google Drive. Mở `/khach-moi`, nhập mật khẩu và bấm **Đồng bộ** cạnh ô tìm kiếm để lấy danh sách mới nhất. Danh sách chỉ được tải từ Postgres sau khi phiên đăng nhập hợp lệ; link vé riêng vẫn mở được bằng mã vé.
 
-To learn more about Next.js, take a look at the following resources:
+### Import Excel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+File import chỉ nhận `.xlsx`, tối đa 4 MB và 5.000 dòng. Dòng đầu phải là `Mã vé` và `Họ tên`; các dòng sau chứa mã vé duy nhất và tên khách. Có thể tải file mẫu trong phần Import Excel của màn danh sách. Mã trùng được bỏ qua và báo lại sau khi import. Nếu có dòng thiếu hoặc sai dữ liệu, toàn bộ file bị từ chối. Nên đặt cột mã vé ở kiểu văn bản để giữ số 0 ở đầu.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Đồng bộ Google Sheets
 
-## Deploy on Vercel
+Nút **Đồng bộ** ở `/khach-moi` lấy dữ liệu từ sheet đăng ký hiện tại (tab `gid=1760843707`). Chỉ các dòng có họ tên được lấy. Cột `STT - Mã số` tạo mã vé `SN11Y-<số>`; `Xưng hô` được ghép trước `Họ và tên`. Hai cột `Người thân của ai` và `Chức vụ` được lưu riêng; trong danh sách, chúng nằm ở dòng nhỏ màu xanh dưới tên; trên vé, chúng hiện trong ngoặc sau tên. Mỗi lần đồng bộ thay toàn bộ danh sách cũ trong một giao dịch; khách đã xóa khỏi sheet sẽ không còn vé. Sheet chỉ có tiêu đề và không có khách sẽ tạo danh sách rỗng. Nếu sheet không đọc được hoặc có dòng không hợp lệ, dữ liệu cũ được giữ nguyên. File Excel có thể thêm khách thủ công trong phần mở rộng trên màn danh sách, nhưng lần đồng bộ Sheets sau sẽ thay toàn bộ danh sách đó. Sheet cần tiếp tục cho phép tải CSV công khai để server đọc được. Trang danh sách đọc Postgres và không gọi Google Sheets mỗi lần mở.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Triển khai trên Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Khai báo `DATABASE_URL`, `GUEST_LIST_SESSION_SECRET` và `NEXT_PUBLIC_BASE_URL` cho môi trường production. Chạy `yarn db:setup` một lần với cùng `DATABASE_URL` trước khi mở ứng dụng. Dùng URL pooler Neon cho runtime; dữ liệu không phụ thuộc bộ nhớ hoặc ổ đĩa của Vercel. Không đưa `.env` vào Git.
+
+Kiểm tra bằng `yarn test`, `yarn build`.

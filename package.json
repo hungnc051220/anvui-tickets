@@ -5,11 +5,16 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "db:setup": "node --env-file=.env scripts/setup-db.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
+    "csv-parse": "^7.0.2",
+    "exceljs": "^4.4.0",
     "html-to-image": "^1.11.13",
     "next": "15.5.2",
+    "postgres": "^3.4.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-qr-code": "^2.0.18",

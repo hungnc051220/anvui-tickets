@@ -10,9 +10,9 @@ const quicksand = Quicksand({
 
 export const generateMetadata = async (): Promise<Metadata> => {
   return {
-    title: "AN VUI trân trọng kính mời tham dự sự kiện 10 năm 1 hành trình",
+    title: "AN VUI trân trọng kính mời tham dự sự kiện 11 năm",
     description:
-      "Đây là sự kiện kỷ niệm 10 năm hành trình xây dựng và phát triển của Công ty Công Nghệ AN VUI. Teams AN VUI mong được đón tiếp bạn trong sự kiện quan trọng và ý nghĩa này ...",
+      "Nhân dịp sinh nhật Công ty, Ban Lãnh đạo trân trọng kính mời toàn thể anh chị em cùng gia đình tham dự buổi lễ kỷ niệm",
     metadataBase: new URL(
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     ),
@@ -20,9 +20,9 @@ export const generateMetadata = async (): Promise<Metadata> => {
       canonical: "/",
     },
     openGraph: {
-      title: "AN VUI trân trọng kính mời tham dự sự kiện 10 năm 1 hành trình",
+      title: "AN VUI trân trọng kính mời tham dự sự kiện 11 năm",
       description:
-        "Đây là sự kiện kỷ niệm 10 năm hành trình xây dựng và phát triển của Công ty Công Nghệ AN VUI. Teams AN VUI mong được đón tiếp bạn trong sự kiện quan trọng và ý nghĩa này ...",
+        "Nhân dịp sinh nhật Công ty, Ban Lãnh đạo trân trọng kính mời toàn thể anh chị em cùng gia đình tham dự buổi lễ kỷ niệm",
       type: "article",
       authors: ["hungnc"],
     },
@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body className={`${quicksand.variable} antialiased`}>
         <Header />
         {children}
