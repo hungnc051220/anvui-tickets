@@ -6,7 +6,15 @@ import { toPng } from "html-to-image";
 import { useMediaQuery } from "react-responsive";
 import QRCode from "react-qr-code";
 
-const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: string; nameSuffix?: string | null }) => {
+const TicketDetail = ({
+  id,
+  fullName,
+  nameSuffix,
+}: {
+  id?: string;
+  fullName?: string;
+  nameSuffix?: string | null;
+}) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -61,7 +69,10 @@ const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: st
           <div className="flex items-start mt-4">
             <p className="w-[130px] font-bold">Kính mời: </p>
             <p className="flex-1">
-              <strong className="text-base">{fullName}{nameSuffix ? ` (${nameSuffix})` : ""}</strong>
+              <strong className="text-base">
+                {fullName}
+                {nameSuffix ? ` (${nameSuffix})` : ""}
+              </strong>
             </p>
           </div>
 
@@ -93,20 +104,20 @@ const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: st
 
           <p className="mt-6">
             Mười một năm – một chặng đường không dài nhưng đủ để tập thể{" "}
-            <strong>AN VUI</strong> khẳng định bản lĩnh và khát vọng của mình. Nhìn lại hành trình đã
-            qua, chúng ta tự hào vì đã cùng nhau vượt qua biết bao thử thách để
-            hôm nay có thể ngồi lại, chia sẻ, và cùng nhau viết tiếp những dấu
-            mốc đáng nhớ. Cảm ơn những người đồng hành, hậu phương vững chắc đã
-            luôn hiện diện trong hành trình ấy. Chính sự gắn bó và tin tưởng đã
-            tạo nên sức mạnh cho <strong>AN VUI</strong>. Chúng tôi trân trọng
-            và mong được đón tiếp bạn tại sự kiện kỷ niệm 11 năm đầy ý nghĩa
-            này.
+            <strong>AN VUI</strong> khẳng định bản lĩnh và khát vọng của mình.
+            Nhìn lại hành trình đã qua, chúng ta tự hào vì đã cùng nhau vượt qua
+            biết bao thử thách để hôm nay có thể ngồi lại, chia sẻ, và cùng nhau
+            viết tiếp những dấu mốc đáng nhớ. Cảm ơn những người đồng hành, hậu
+            phương vững chắc đã luôn hiện diện trong hành trình ấy. Chính sự gắn
+            bó và tin tưởng đã tạo nên sức mạnh cho <strong>AN VUI</strong>.
+            Chúng tôi trân trọng và mong được đón tiếp tại sự kiện kỷ niệm 11
+            năm đầy ý nghĩa này.
           </p>
 
           <div className="flex justify-between mt-10 gap-10">
             <p className="w-2/3 text-sm mt-auto">
-              Hỗ trợ đón tiếp: Bà
-              Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT: 0974.479.642
+              Hỗ trợ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
+              0974.479.642
             </p>
             <div>
               <p className="mb-1 text-xs text-center">Quét để xem chi tiết</p>
@@ -184,7 +195,10 @@ const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: st
           <div className="flex items-center mt-4">
             <p className="w-[150px] font-bold">Kính mời: </p>
             <p className="">
-              <strong className="text-2xl">{fullName}{nameSuffix ? ` (${nameSuffix})` : ""}</strong>
+              <strong className="text-2xl">
+                {fullName}
+                {nameSuffix ? ` (${nameSuffix})` : ""}
+              </strong>
             </p>
           </div>
 
@@ -222,15 +236,19 @@ const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: st
             viết tiếp những dấu mốc đáng nhớ. Cảm ơn những người đồng hành, hậu
             phương vững chắc đã luôn hiện diện trong hành trình ấy. Chính sự gắn
             bó và tin tưởng đã tạo nên sức mạnh cho <strong>AN VUI</strong>.
-            Chúng tôi trân trọng và mong được đón tiếp bạn tại sự kiện kỷ niệm
-            11 năm đầy ý nghĩa này.
+            Chúng tôi trân trọng và mong được đón tiếp tại sự kiện kỷ niệm 11
+            năm đầy ý nghĩa này.
           </p>
 
-          <div className="flex justify-between mt-auto">
-            <p className="w-2/3 mt-auto">
-              Liên hệ đón tiếp: Bà Nguyễn
-              Thị Hoa - Hành chính – Nhân sự · ĐT: 0974.479.642
-            </p>
+          <div className="flex justify-between items-end mt-auto">
+            <div>
+              <h4 className="text-2xl font-bold">Tổng giám đốc</h4>
+              <h4 className="text-2xl font-bold mb-1">Phan Bá Mạnh</h4>
+              <p className="w-2/3 mt-auto">
+                Liên hệ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
+                0974.479.642
+              </p>
+            </div>
             <div>
               <p className="mb-1 text-sm text-center">Quét để xem chi tiết</p>
               <div className="bg-white max-w-[150px] relative p-2 rounded-lg">
