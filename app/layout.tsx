@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
-import { Quicksand } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
+import "lenis/dist/lenis.css";
 import Header from "@/components/header";
+import SmoothScrollProvider from "@/components/smooth-scroll-provider";
 
-const quicksand = Quicksand({
-  variable: "--font-quicksand",
-  subsets: ["latin"],
+const beVietnamPro = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam-pro",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const generateMetadata = async (): Promise<Metadata> => {
   return {
-    title: "AN VUI trân trọng kính mời tham dự sự kiện 11 năm",
+    title: "11 năm AN VUI | Cùng nhau đi xa hơn",
     description:
-      "Nhân dịp sinh nhật Công ty, Ban Lãnh đạo trân trọng kính mời toàn thể anh chị em cùng gia đình tham dự buổi lễ kỷ niệm",
+      "Kỷ niệm 11 năm AN VUI: cùng nhìn lại hành trình, những dấu mốc công nghệ và thông tin sự kiện ngày 23/09/2026.",
     metadataBase: new URL(
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     ),
@@ -20,9 +23,9 @@ export const generateMetadata = async (): Promise<Metadata> => {
       canonical: "/",
     },
     openGraph: {
-      title: "AN VUI trân trọng kính mời tham dự sự kiện 11 năm",
+      title: "11 năm AN VUI | Cùng nhau đi xa hơn",
       description:
-        "Nhân dịp sinh nhật Công ty, Ban Lãnh đạo trân trọng kính mời toàn thể anh chị em cùng gia đình tham dự buổi lễ kỷ niệm",
+        "Kỷ niệm 11 năm AN VUI: cùng nhìn lại hành trình, những dấu mốc công nghệ và thông tin sự kiện ngày 23/09/2026.",
       type: "article",
       authors: ["hungnc"],
     },
@@ -49,7 +52,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`${quicksand.variable} antialiased`}>
+      <body className={`${beVietnamPro.variable} antialiased`}>
+        <SmoothScrollProvider />
         <Header />
         {children}
       </body>

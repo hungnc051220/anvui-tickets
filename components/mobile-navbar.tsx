@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
+import { GALLERY_DRIVE_URL } from "@/lib/anniversary-links";
 
 // Usage: import MobileNavbar from '@/components/MobileNavbar'
 // <MobileNavbar />
@@ -25,8 +26,9 @@ export default function MobileNavbar() {
       >
         <nav className="flex flex-col p-4 space-y-2">
           <a
-            href="https://drive.google.com/drive/folders/1KrsJia9YtjotHjkGcREGhYoaEW3urCZq"
+            href={GALLERY_DRIVE_URL}
             target="_blank"
+            rel="noopener noreferrer"
             className="hover:underline"
           >
             Hình ảnh sự kiện
