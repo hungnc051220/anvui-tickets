@@ -1,5 +1,5 @@
 import Image from "next/image";
-import AnniversaryReveal from "@/components/anniversary-reveal";
+import AnniversaryMotion from "@/components/anniversary-motion";
 import { GALLERY_DRIVE_URL } from "@/lib/anniversary-links";
 import "./anniversary.css";
 
@@ -164,7 +164,7 @@ function MilestoneTimeline() {
   return (
     <section className="timeline-section" id="dau-moc">
       <div className="anniversary-container">
-        <div className="section-heading" data-reveal="up">
+        <div className="section-heading">
           <h2>10 DẤU MỐC LÀM NÊN THƯƠNG HIỆU AN VUI</h2>
           <p>
             Từ một ý tưởng nhỏ đến nền tảng công nghệ số cho ngành vận tải hành
@@ -172,36 +172,35 @@ function MilestoneTimeline() {
           </p>
         </div>
         <div className="timeline-grid">
-          {milestones.map((item, index) => (
-            <article
-              className="milestone"
-              key={item.title}
-              data-reveal="milestone"
-              style={{ "--reveal-delay": `${(index % 5) * 80}ms` } as React.CSSProperties}
-            >
-              <div className="milestone-visual">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 767px) 82px, 106px"
-                  className={
-                    item.date === "2026" ? "milestone-logo" : "milestone-photo"
-                  }
-                />
-              </div>
-              <div className="milestone-line">
-                <i />
-              </div>
-              <div className="milestone-copy">
-                <p className="milestone-date">{item.date}</p>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </div>
-            </article>
+          <div className="timeline-progress-line" aria-hidden="true" />
+          {[0, 1].map((row) => (
+            <div className="timeline-row" key={row}>
+              <div className="timeline-row-progress-line" aria-hidden="true" />
+              {milestones.slice(row * 5, row * 5 + 5).map((item) => (
+                <article className="milestone" key={item.title}>
+                  <div className="milestone-visual">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 767px) 82px, 106px"
+                      className={
+                        item.date === "2026" ? "milestone-logo" : "milestone-photo"
+                      }
+                    />
+                  </div>
+                  <i className="milestone-dot" aria-hidden="true" />
+                  <div className="milestone-copy">
+                    <p className="milestone-date">{item.date}</p>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           ))}
         </div>
-        <div className="stats-bar" data-reveal="stats">
+        <div className="stats-bar">
           {stats.map((stat) => (
             <div className="stat" key={stat.value}>
               <Icon name={stat.icon} size={34} />
@@ -276,9 +275,9 @@ export default function Home() {
       <MilestoneTimeline />
       <section className="event-section" id="su-kien">
         <div className="anniversary-container event-layout">
-          <div className="event-info" data-reveal="left">
+          <div className="event-info">
             <h2>THÔNG TIN SỰ KIỆN</h2>
-            <div className="event-details" id="lich-trinh">
+            <div className="event-details">
               {eventDetails.map((detail) => (
                 <div className="event-detail" key={detail.label}>
                   <span className="event-icon">
@@ -303,7 +302,7 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="venue-gallery" id="hinh-anh" data-reveal="right">
+          <div className="venue-gallery" id="hinh-anh">
             <div className="venue-main venue-card">
               <Image
                 src="/assets/background-home.jpg"
@@ -360,7 +359,7 @@ export default function Home() {
       <footer className="anniversary-footer" id="lien-he">
         <div className="anniversary-container">
           <div className="footer-top">
-            <a href="#trang-chu" aria-label="AN VUI, về đầu trang" data-reveal="up">
+            <a href="#trang-chu" aria-label="AN VUI, về đầu trang">
               <Image
                 src="/assets/logo-anvui.webp"
                 alt="AN VUI"
@@ -369,7 +368,7 @@ export default function Home() {
                 className="footer-logo"
               />
             </a>
-            <nav aria-label="Điều hướng cuối trang" data-reveal="up">
+            <nav aria-label="Điều hướng cuối trang">
               <a href="#trang-chu">Trang chủ</a>
               <a href="#su-kien">Giới thiệu</a>
               <a href="#dau-moc">Dấu mốc</a>
@@ -378,15 +377,16 @@ export default function Home() {
               </a>
               <a href="#lien-he">Liên hệ</a>
             </nav>
-            <span className="footer-script" data-reveal="up">
+            <span className="footer-script">
               Cùng nhau,
               <br />
               đi xa hơn!
             </span>
           </div>
           <div className="footer-bottom">
-            <span>© 2026 AN VUI. All rights reserved.</span>
-            <div className="social-links" data-reveal="up">
+            <span className="footer-credit">Developed by HungNC</span>
+            <span className="footer-copyright">© 2026 AN VUI. All rights reserved.</span>
+            <div className="social-links">
               <a
                 href="https://www.facebook.com/anvui.vn"
                 target="_blank"
@@ -422,7 +422,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-      <AnniversaryReveal />
+      <AnniversaryMotion />
     </main>
   );
 }
