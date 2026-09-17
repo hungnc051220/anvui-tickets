@@ -22,14 +22,6 @@ export default function Home() {
             referrerPolicy="strict-origin-when-cross-origin"
           />
         </div>
-        <a
-          href="https://drive.google.com/file/d/10rezsaLabTh9xPAegxiQG6XoY81tVhoI/view"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 inline-block text-sm font-semibold text-[#06107C] underline"
-        >
-          Mở video trên Google Drive
-        </a>
       </div>
     </main>
   );

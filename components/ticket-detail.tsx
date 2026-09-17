@@ -97,8 +97,8 @@ const TicketDetail = ({
           <div className="flex items-start mt-4">
             <p className="w-[130px] font-bold">Trang phục:</p>
             <p className="flex-1">
-              Lịch sự, chỉn chu để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu
-              tiên tông màu Trắng
+              Lịch sự để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu tiên tông
+              màu Trắng
             </p>
           </div>
 
@@ -115,10 +115,14 @@ const TicketDetail = ({
           </p>
 
           <div className="flex justify-between mt-10 gap-10">
-            <p className="w-2/3 text-sm mt-auto">
-              Hỗ trợ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
-              0974.479.642
-            </p>
+            <div className="mt-auto">
+              <h4 className="text-xl font-bold">Tổng giám đốc</h4>
+              <h4 className="text-xl font-bold mb-1">Phan Bá Mạnh</h4>
+              <p className="mt-auto">
+                Hỗ trợ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
+                0974.479.642
+              </p>
+            </div>
             <div>
               <p className="mb-1 text-xs text-center">Quét để xem chi tiết</p>
               <div className="bg-white size-[120px] relative p-2 rounded-lg">
@@ -223,8 +227,8 @@ const TicketDetail = ({
           <div className="flex items-center mt-4">
             <p className="w-[150px] font-bold">Trang phục:</p>
             <p>
-              Lịch sự, chỉn chu để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu
-              tiên tông màu Trắng
+              Lịch sự để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu tiên tông
+              màu Trắng
             </p>
           </div>
 
@@ -244,8 +248,8 @@ const TicketDetail = ({
             <div>
               <h4 className="text-2xl font-bold">Tổng giám đốc</h4>
               <h4 className="text-2xl font-bold mb-1">Phan Bá Mạnh</h4>
-              <p className="w-2/3 mt-auto">
-                Liên hệ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
+              <p>
+                Hỗ trợ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
                 0974.479.642
               </p>
             </div>
