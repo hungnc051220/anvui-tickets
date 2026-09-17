@@ -18,7 +18,8 @@ const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: st
 
   const handleExport = async () => {
     if (!divRef.current) return;
-    const dataUrl = await toPng(divRef.current);
+    // Next.js image URLs differ by query parameters; keep them in html-to-image's cache key.
+    const dataUrl = await toPng(divRef.current, { includeQueryParams: true });
     const link = document.createElement("a");
     link.download = `${id} ${fullName}.png`;
     link.href = dataUrl;
@@ -92,8 +93,7 @@ const TicketDetail = ({ id, fullName, nameSuffix }: { id?: string; fullName?: st
 
           <p className="mt-6">
             Mười một năm – một chặng đường không dài nhưng đủ để tập thể{" "}
-            <strong>AN VUI</strong>
-            khẳng định bản lĩnh và khát vọng của mình. Nhìn lại hành trình đã
+            <strong>AN VUI</strong> khẳng định bản lĩnh và khát vọng của mình. Nhìn lại hành trình đã
             qua, chúng ta tự hào vì đã cùng nhau vượt qua biết bao thử thách để
             hôm nay có thể ngồi lại, chia sẻ, và cùng nhau viết tiếp những dấu
             mốc đáng nhớ. Cảm ơn những người đồng hành, hậu phương vững chắc đã
