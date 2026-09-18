@@ -40,9 +40,31 @@ export default function RouteTransition({ children }: { children: React.ReactNod
     clearTimers();
     activeRef.current = true;
     setProgress("loading");
-    // This only recovers from a failed navigation; it never delays a successful one.
+    // Failsafe only. Successful navigation is completed by the committed route DOM below.
     watchdogRef.current = setTimeout(finish, 20000);
   }, [clearTimers, finish]);
+
+  const finishIfRouteIsReady = useCallback(() => {
+    if (!activeRef.current) return;
+
+    const content = contentRef.current;
+    if (!content) return;
+
+    // App Router can commit loading.tsx before the destination content.
+    // Do not finish until that fallback has actually left the DOM.
+    if (content.querySelector("[data-route-loading]")) return;
+
+    // For link navigations, wait until the browser has committed the requested URL.
+    // This prevents unrelated mutations in the old page from completing the loader.
+    if (pendingHrefRef.current) {
+      const destination = new URL(pendingHrefRef.current, window.location.href);
+      const current = window.location.pathname + window.location.search;
+      const next = destination.pathname + destination.search;
+      if (current !== next) return;
+    }
+
+    finish();
+  }, [finish]);
 
   useEffect(() => {
     committedRouteRef.current = window.location.pathname + window.location.search;
@@ -86,7 +108,9 @@ export default function RouteTransition({ children }: { children: React.ReactNod
     };
 
     const onPopState = () => {
-      if (window.location.pathname + window.location.search !== committedRouteRef.current) start();
+      if (window.location.pathname + window.location.search === committedRouteRef.current) return;
+      pendingHrefRef.current = window.location.href;
+      start();
     };
 
     window.addEventListener(ROUTE_PROGRESS_START, start);
@@ -105,9 +129,32 @@ export default function RouteTransition({ children }: { children: React.ReactNod
   }, [clearTimers, finish, router, start]);
 
   useEffect(() => {
-    if (!activeRef.current || contentRef.current?.querySelector("[data-route-loading]")) return;
-    finish();
-  }, [children, pathname, finish]);
+    const content = contentRef.current;
+    if (!content) return;
+
+    let frame: number | null = null;
+    const checkReady = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        finishIfRouteIsReady();
+      });
+    };
+
+    const observer = new MutationObserver(checkReady);
+    observer.observe(content, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
+  }, [finishIfRouteIsReady]);
+
+  useEffect(() => {
+    if (!activeRef.current) return;
+    const frame = requestAnimationFrame(finishIfRouteIsReady);
+    return () => cancelAnimationFrame(frame);
+  }, [children, pathname, finishIfRouteIsReady]);
 
   return (
     <>
