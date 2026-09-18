@@ -144,18 +144,21 @@ export default function AnniversaryMotion() {
         .fromTo(select(".venue-card"), { autoAlpha: 0, y: 12 },
           { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.75, ease: "power2.out" }, 0.18);
 
-      const footer = select(".anniversary-footer")[0];
-      gsap.timeline({ scrollTrigger: { trigger: footer, start: "top 88%", once: true } })
-        .fromTo(select(".footer-top>a"), { autoAlpha: 0, y: 14 },
+      const footer = document.querySelector<HTMLElement>(".anniversary-footer");
+      if (footer) {
+        const selectFooter = gsap.utils.selector(footer);
+        gsap.timeline({ scrollTrigger: { trigger: footer, start: "top 88%", once: true } })
+        .fromTo(selectFooter(".footer-top>a"), { autoAlpha: 0, y: 14 },
           { autoAlpha: 1, y: 0, duration: 0.75, ease: "power2.out" }, 0)
-        .fromTo(select(".footer-top nav"), { autoAlpha: 0, y: 14 },
+        .fromTo(selectFooter(".footer-top nav"), { autoAlpha: 0, y: 14 },
           { autoAlpha: 1, y: 0, duration: 0.75, ease: "power2.out" }, 0.09)
-        .fromTo(select(".footer-top nav a"), { autoAlpha: 0, y: 7 },
+        .fromTo(selectFooter(".footer-top nav a"), { autoAlpha: 0, y: 7 },
           { autoAlpha: 1, y: 0, stagger: 0.08, duration: 0.56, ease: "power2.out" }, 0.14)
-        .fromTo(select(".footer-script"), { autoAlpha: 0, y: 12 },
+        .fromTo(selectFooter(".footer-script"), { autoAlpha: 0, y: 12 },
           { autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.18)
-        .fromTo(select(".social-links a"), { autoAlpha: 0, y: 8 },
+        .fromTo(selectFooter(".social-links a"), { autoAlpha: 0, y: 8 },
           { autoAlpha: 1, y: 0, stagger: 0.1, duration: 0.65, ease: "power2.out" }, 0.24);
+      }
     }, root);
 
     const startHero = async () => {

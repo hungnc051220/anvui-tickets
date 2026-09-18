@@ -5,20 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "@/lib/gsap-client";
-import { GALLERY_DRIVE_URL } from "@/lib/anniversary-links";
-
-const homeLinks = [
-  { label: "Trang chủ", href: "#trang-chu" },
-  { label: "Thông tin sự kiện", href: "#su-kien" },
-  { label: "Dấu mốc 11 năm", href: "#dau-moc" },
-  { label: "Hình ảnh", href: GALLERY_DRIVE_URL, external: true },
-  { label: "Liên hệ", href: "#lien-he" },
-];
+import { siteNavHref, siteNavItems } from "@/config/navigation";
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const isHome = pathname === "/";
+  const isGuestList = pathname === "/khach-moi";
+  const useDarkHeader = isHome || isGuestList;
   const [open, setOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -34,6 +28,9 @@ export default function Header() {
   const replayingAnchorRef = useRef(false);
   const previousOverflowRef = useRef("");
   const bodyLockedRef = useRef(false);
+  const headerBackdropFilter = scrolled || menuVisible
+    ? "blur(14px) saturate(140%)"
+    : "blur(0px) saturate(100%)";
 
   const unlockBody = () => {
     if (!bodyLockedRef.current) return;
@@ -270,44 +267,56 @@ export default function Header() {
       />
       <header
         ref={headerRef}
-        className={`site-header fixed inset-x-0 top-0 z-[100] transition-colors duration-300 ${isHome ? (scrolled || menuVisible ? "bg-[#061a3b]/90 shadow-lg backdrop-blur-xl" : "bg-transparent") : "bg-white/95 shadow-sm backdrop-blur-xl"}`}
-        style={menuVisible ? { background: "rgba(5,25,65,.98)" } : undefined}
+        className={`site-header site-header--${useDarkHeader ? "dark" : "light"} fixed inset-x-0 top-0 z-[100] ${scrolled || menuVisible ? "is-scrolled" : ""}`}
+        style={{
+          ...(menuVisible ? { background: "rgba(5,25,65,.98)" } : {}),
+          backdropFilter: headerBackdropFilter,
+          WebkitBackdropFilter: headerBackdropFilter,
+        }}
       >
-        <div className="relative mx-auto flex h-[72px] w-[calc(100%-40px)] max-w-[1320px] items-center justify-between gap-4 sm:w-[calc(100%-76px)] lg:h-[78px]">
+        <div className="site-container relative flex h-[72px] items-center justify-between gap-4 lg:h-[78px]">
           <Link href="/" aria-label="Trang chủ AN VUI" className="shrink-0">
             <Image
               src="/assets/logo-anvui.webp"
               alt="AN VUI"
               width={130}
               height={78}
-              className={`h-auto w-[104px] object-contain lg:w-[126px] ${isHome || menuVisible ? "brightness-0 invert" : ""}`}
+              className={`h-auto w-[104px] object-contain lg:w-[126px] ${useDarkHeader || menuVisible ? "brightness-0 invert" : ""}`}
             />
           </Link>
           <nav
             aria-label="Điều hướng chính"
-            className={`hidden items-center gap-2 lg:flex ${isHome ? "absolute left-1/2 -translate-x-1/2" : ""}`}
+            className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 lg:flex"
           >
-            {isHome
-              ? homeLinks.map((link) => (
+            {siteNavItems.map((link) => (
                   <a
                     key={link.href}
-                    href={link.href}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noopener noreferrer" : undefined}
-                    aria-current={!link.external && activeSection === link.href ? "location" : undefined}
-                    className={`whitespace-nowrap rounded-full px-2 py-2 text-[12px] font-medium transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffe2a2] xl:px-4 xl:text-[13px] ${!link.external && activeSection === link.href ? "bg-white/15 text-[#ffe2a2]" : "text-white"}`}
+                    href={siteNavHref(link.href, isHome)}
+                    target={"external" in link && link.external ? "_blank" : undefined}
+                    rel={"external" in link && link.external ? "noopener noreferrer" : undefined}
+                    aria-current={isHome && !("external" in link && link.external) && activeSection === link.href ? "location" : undefined}
+                    className={`whitespace-nowrap rounded-full px-2 py-2 text-[12px] font-medium transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffe2a2] xl:px-4 xl:text-[13px] ${isHome && !("external" in link && link.external) && activeSection === link.href ? "bg-white/15 text-[#ffe2a2]" : useDarkHeader ? "text-white" : "text-[#092450]"}`}
                   >
                     {link.label}
                   </a>
-                ))
-              : null}
+                ))}
           </nav>
           <div className="flex items-center gap-2">
+            {!isHome && (
+              <Link href="/" aria-label="Trở về trang chủ" className={`inline-flex h-10 w-10 items-center justify-center rounded-full border lg:hidden ${useDarkHeader ? "border-white/25 bg-white/5 text-white hover:bg-white/12" : "border-[#092450]/25 bg-[#092450]/5 text-[#092450] hover:bg-[#092450]/10"}`}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" /></svg>
+              </Link>
+            )}
             <Link
-              href="/khach-moi"
-              className={`hidden shrink-0 items-center justify-center rounded-full px-5 py-2.5 text-xs font-bold shadow-md transition-transform hover:-translate-y-0.5 lg:inline-flex ${isHome ? "bg-[#fff8e9] text-[#092450]" : "bg-[#06107C] text-white"}`}
+              href={isHome ? "/khach-moi" : "/"}
+              className={`hidden shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-colors lg:inline-flex ${isHome ? "bg-[#fff8e9] text-[#092450] shadow-md hover:bg-white" : useDarkHeader ? "border border-white/25 bg-white/5 text-white hover:bg-white/12" : "border border-[#092450]/25 bg-[#092450]/5 text-[#092450] hover:bg-[#092450]/10"}`}
             >
-              Danh sách khách mời
+              {!isHome ? (
+                <>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" /></svg>
+                  Trở về trang chủ
+                </>
+              ) : "Danh sách khách mời"}
             </Link>
             <button
               type="button"
@@ -319,7 +328,7 @@ export default function Header() {
                 if (!open) setMenuVisible(true);
                 setOpen((value) => !value);
               }}
-              className={`rounded-lg p-2 lg:hidden ${isHome || menuVisible ? "text-white" : "text-[#06107C]"}`}
+              className={`rounded-lg p-2 lg:hidden ${useDarkHeader || menuVisible ? "text-white" : "text-[#06107C]"}`}
             >
               <span className="relative block h-6 w-6" aria-hidden="true">
                 <span
@@ -353,21 +362,11 @@ export default function Header() {
             background: "rgba(5,25,65,.98)",
           }}
         >
-          {(isHome
-            ? homeLinks
-            : [
-                { label: "Trang chủ", href: "/" },
-                {
-                  label: "Hình ảnh sự kiện",
-                  href: GALLERY_DRIVE_URL,
-                  external: true,
-                },
-              ]
-          ).map((link) => (
+          {siteNavItems.map((link) => (
             <a
               key={link.href}
               data-menu-link
-              href={link.href}
+              href={siteNavHref(link.href, isHome)}
               target={
                 "external" in link && link.external ? "_blank" : undefined
               }
@@ -384,12 +383,12 @@ export default function Header() {
             </a>
           ))}
           <Link
-            href="/khach-moi"
+            href={isHome ? "/khach-moi" : "/"}
             data-menu-cta
             onClick={handleMenuLinkClick}
             className="mt-3 flex min-h-[50px] w-full items-center justify-center rounded-full bg-[linear-gradient(90deg,#f4c75d,#ffe19a)] px-4 text-center text-sm font-semibold text-[#092450]"
           >
-            Danh sách khách mời
+            {isHome ? "Danh sách khách mời" : "Trở về trang chủ"}
           </Link>
         </nav>
       </header>

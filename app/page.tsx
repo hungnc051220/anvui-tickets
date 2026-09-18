@@ -1,7 +1,5 @@
 import Image from "next/image";
 import AnniversaryMotion from "@/components/anniversary-motion";
-import { GALLERY_DRIVE_URL } from "@/lib/anniversary-links";
-import "./anniversary.css";
 
 const MAPS_URL =
   "https://www.google.com/maps/place/Tr%C3%A0ng+An+Palace/@21.002741,105.8055424,17z";
@@ -163,7 +161,7 @@ function Icon({ name, size = 27 }: { name: string; size?: number }) {
 function MilestoneTimeline() {
   return (
     <section className="timeline-section" id="dau-moc">
-      <div className="anniversary-container">
+      <div className="site-container">
         <div className="section-heading">
           <h2>10 DẤU MỐC LÀM NÊN THƯƠNG HIỆU AN VUI</h2>
           <p>
@@ -223,7 +221,7 @@ export default function Home() {
       <section className="hero-section" aria-labelledby="hero-title">
         <div className="hero-art" />
         <div className="hero-shade" />
-        <div className="anniversary-container hero-inner">
+        <div className="site-container hero-inner">
           <p className="hero-side hero-side-left">
             VÌ MỘT NGÀNH VẬN TẢI
             <br />
@@ -274,7 +272,7 @@ export default function Home() {
       </section>
       <MilestoneTimeline />
       <section className="event-section" id="su-kien">
-        <div className="anniversary-container event-layout">
+        <div className="site-container event-layout">
           <div className="event-info">
             <h2>THÔNG TIN SỰ KIỆN</h2>
             <div className="event-details">
@@ -356,72 +354,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <footer className="anniversary-footer" id="lien-he">
-        <div className="anniversary-container">
-          <div className="footer-top">
-            <a href="#trang-chu" aria-label="AN VUI, về đầu trang">
-              <Image
-                src="/assets/logo-anvui.webp"
-                alt="AN VUI"
-                width={145}
-                height={88}
-                className="footer-logo"
-              />
-            </a>
-            <nav aria-label="Điều hướng cuối trang">
-              <a href="#trang-chu">Trang chủ</a>
-              <a href="#su-kien">Giới thiệu</a>
-              <a href="#dau-moc">Dấu mốc</a>
-              <a href={GALLERY_DRIVE_URL} target="_blank" rel="noopener noreferrer">
-                Hình ảnh
-              </a>
-              <a href="#lien-he">Liên hệ</a>
-            </nav>
-            <span className="footer-script">
-              Cùng nhau,
-              <br />
-              đi xa hơn!
-            </span>
-          </div>
-          <div className="footer-bottom">
-            <span className="footer-credit">Developed by HungNC</span>
-            <span className="footer-copyright">© 2026 AN VUI. All rights reserved.</span>
-            <div className="social-links">
-              <a
-                href="https://www.facebook.com/anvui.vn"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook AN VUI"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M14.3 21v-7.7h2.6l.4-3.1h-3V8.4c0-.9.3-1.5 1.6-1.5h1.5V4.1c-.7-.1-1.6-.1-2.4-.1-2.7 0-4.5 1.7-4.5 4.7v1.5H8v3.1h2.5V21h3.8Z" />
-                </svg>
-              </a>
-              <a
-                href="https://www.youtube.com/@ANVUI"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube AN VUI"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <rect x="2" y="5" width="20" height="14" rx="4" fill="currentColor" />
-                  <path d="m10 8.7 5.6 3.3-5.6 3.3V8.7Z" fill="white" />
-                </svg>
-              </a>
-              <a
-                href="https://www.linkedin.com/company/an-vui/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn AN VUI"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M4.2 8.8h3.2V20H4.2V8.8Zm1.6-5.3a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8ZM9.3 8.8h3.1v1.5c.5-.9 1.7-1.8 3.5-1.8 3.7 0 4.1 2.4 4.1 5.5v6h-3.2v-5.3c0-1.3 0-3-1.8-3s-2.5 1.4-2.5 2.9V20H9.3V8.8Z" />
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
       <AnniversaryMotion />
     </main>
   );

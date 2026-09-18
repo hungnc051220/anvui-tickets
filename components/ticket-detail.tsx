@@ -1,108 +1,189 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
-import { useMediaQuery } from "react-responsive";
 import QRCode from "react-qr-code";
+import "./ticket-detail.css";
+
+type IconName = "guest" | "time" | "place" | "dress" | "support";
+
+function TicketIcon({ name }: { name: IconName }) {
+  const paths: Record<IconName, React.ReactNode> = {
+    guest: (
+      <>
+        <circle cx="12" cy="6" r="3" />
+        <path d="M5 21v-3a7 7 0 0 1 14 0v3" />
+      </>
+    ),
+    time: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 6v6l4 3" />
+      </>
+    ),
+    place: (
+      <>
+        <path d="M12 22s7-7.3 7-13a7 7 0 0 0-14 0c0 5.7 7 13 7 13Z" />
+        <circle cx="12" cy="9" r="2.3" />
+      </>
+    ),
+    dress: (
+      <>
+        <path d="m9 3 3 2 3-2 2 2-2 5 4 10H5l4-10-2-5 2-2Z" />
+        <path d="M9 10h6" />
+      </>
+    ),
+    support: (
+      <>
+        <path d="M3 13v-2a9 9 0 0 1 18 0v2M3 13h3v7H5a2 2 0 0 1-2-2v-5Zm18 0h-3v7h1a2 2 0 0 0 2-2v-5ZM18 20c0 2-2 2-5 2" />
+      </>
+    ),
+  };
+
+  return (
+    <svg
+      aria-hidden="true"
+      className={`ticket-icon ticket-icon-${name}`}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {paths[name]}
+    </svg>
+  );
+}
 
 const TicketDetail = ({
   id,
   fullName,
   nameSuffix,
+  autoDownload = false,
 }: {
   id?: string;
   fullName?: string;
   nameSuffix?: string | null;
+  autoDownload?: boolean;
 }) => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const divRef = useRef<HTMLDivElement>(null);
-  const isTabletOrMobile = useMediaQuery({ maxWidth: 1279 });
+  const autoDownloadStarted = useRef(false);
 
-  const handleExport = async () => {
-    if (!divRef.current) return;
-    // Next.js image URLs differ by query parameters; keep them in html-to-image's cache key.
-    const dataUrl = await toPng(divRef.current, { includeQueryParams: true });
+  const handleExport = useCallback(async () => {
+    const ticket = divRef.current;
+    if (!ticket) return;
+    const bounds = ticket.getBoundingClientRect();
+    const width = Math.ceil(bounds.width);
+    const height = Math.ceil(Math.max(bounds.height, ticket.scrollHeight));
+    const dataUrl = await toPng(ticket, {
+      includeQueryParams: true,
+      width,
+      height,
+      pixelRatio: Math.min(6, Math.max(2, Math.ceil(1800 / width))),
+    });
     const link = document.createElement("a");
     link.download = `${id} ${fullName}.png`;
     link.href = dataUrl;
     link.click();
-  };
+  }, [id, fullName]);
 
-  if (!isMounted) return null;
+  useEffect(() => {
+    if (!autoDownload || autoDownloadStarted.current) return;
+    autoDownloadStarted.current = true;
+    void (async () => {
+      await document.fonts.ready;
+      const images = Array.from(divRef.current?.querySelectorAll("img") ?? []);
+      await Promise.all(images.map((image) => image.decode().catch(() => undefined)));
+      await handleExport();
+    })();
+  }, [autoDownload, handleExport]);
 
-  return isTabletOrMobile ? (
-    <div className="pt-20">
-      <div
-        ref={divRef}
-        className="px-4 w-[95%] mx-auto relative text-white my-4 text-sm"
-      >
-        <Image
-          src="/assets/bg-mobile.png"
-          alt="background"
-          fill
-          className="z-0"
-        />
-        <div className="relative pb-10">
-          <div className="pt-6 pb-4 text-center border-b border-dashed border-white -mx-4">
-            <p className="text-xl font-bold whitespace-nowrap">Mã số: {id}</p>
-          </div>
+  return (
+    <main className="ticket-page">
+      <div ref={divRef} className="event-ticket">
+        <div className="ticket-anniversary" aria-hidden="true">
+          11 YEARS
+        </div>
 
-          <div className="flex w-full justify-between items-center">
-            <div className="mb-4">
-              <h2 className="font-bold text-2xl">VÉ MỜI SỰ KIỆN</h2>
+        <aside className="ticket-stub">
+          <span className="ticket-separator-flare" aria-hidden="true" />
+          <p
+            className={`ticket-code${(id?.length ?? 0) > 17 ? " ticket-code-long" : ""}${(id?.length ?? 0) > 28 ? " ticket-code-very-long" : ""}`}
+          >
+            Mã số: {id}
+          </p>
+          <p className="ticket-stub-script">
+            Cùng nhau
+            <br />
+            đi xa hơn
+          </p>
+        </aside>
+
+        <div className="ticket-main">
+          <header className="ticket-heading">
+            <div className="ticket-heading-copy">
+              <div className="ticket-title-wrap">
+                <h1>VÉ MỜI SỰ KIỆN</h1>
+                <span className="ticket-title-streak" aria-hidden="true" />
+              </div>
+              <div className="ticket-kicker">
+                <span>KỶ NIỆM 11 NĂM THÀNH LẬP AN VUI</span>
+              </div>
+              <p>
+                TRI ÂN <b>•</b> KẾT NỐI <b>•</b> CÙNG NHAU ĐI XA HƠN
+              </p>
             </div>
             <Image
               src="/assets/logo2.png"
-              alt="background"
-              width={100}
-              height={100}
-              className="object-contain"
+              alt="11 years AN VUI"
+              width={260}
+              height={220}
+              className="ticket-logo"
+              priority
             />
-          </div>
+          </header>
 
-          <div className="flex items-start mt-4">
-            <p className="w-[130px] font-bold">Kính mời: </p>
-            <p className="flex-1">
-              <strong className="text-base">
-                {fullName}
-                {nameSuffix ? ` (${nameSuffix})` : ""}
-              </strong>
-            </p>
-          </div>
-
-          <div className="flex items-start mt-4">
-            <p className="w-[130px] font-bold">Thời gian:</p>
-            <p className="flex-1">18h00, Thứ Tư, ngày 23/09/2026</p>
-          </div>
-
-          <div className="flex items-start mt-4">
-            <p className="w-[130px] font-bold">Địa điểm:</p>
-            <div className="flex-1">
-              <p className="font-bold">
-                Hội trường Tràng An Place — Toà Hei Tower
-              </p>
-              <p className="text-sm">
+          <div className="ticket-details">
+            <div className="ticket-detail-row">
+              <TicketIcon name="guest" />
+              <span className="ticket-detail-label">Kính mời:</span>
+              <div className="ticket-detail-value">
+                <strong>
+                  {fullName}
+                  {nameSuffix ? ` (${nameSuffix})` : ""}
+                </strong>
+              </div>
+            </div>
+            <div className="ticket-detail-row">
+              <TicketIcon name="time" />
+              <span className="ticket-detail-label">Thời gian:</span>
+              <div className="ticket-detail-value">
+                18h00 - Thứ Tư, ngày 23/09/2026
+              </div>
+            </div>
+            <div className="ticket-detail-row">
+              <TicketIcon name="place" />
+              <span className="ticket-detail-label">Địa điểm:</span>
+              <div className="ticket-detail-value">
+                <strong>Hội trường Tràng An Place — Toà Hei Tower</strong>
+                <br />
                 Số 1 Nguỵ Như Kon Tum, phường Nhân Chính, quận Thanh Xuân, Hà
                 Nội
-              </p>
+              </div>
+            </div>
+            <div className="ticket-detail-row">
+              <TicketIcon name="dress" />
+              <span className="ticket-detail-label">Trang phục:</span>
+              <div className="ticket-detail-value">
+                Lịch sự để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu tiên tông
+                màu Trắng
+              </div>
             </div>
           </div>
 
-          <div className="flex items-start mt-4">
-            <p className="w-[130px] font-bold">Trang phục:</p>
-            <p className="flex-1">
-              Lịch sự để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu tiên tông
-              màu Trắng
-            </p>
-          </div>
-
-          <p className="mt-6">
+          <p className="ticket-description">
             Mười một năm – một chặng đường không dài nhưng đủ để tập thể{" "}
             <strong>AN VUI</strong> khẳng định bản lĩnh và khát vọng của mình.
             Nhìn lại hành trình đã qua, chúng ta tự hào vì đã cùng nhau vượt qua
@@ -114,49 +195,43 @@ const TicketDetail = ({
             năm đầy ý nghĩa này.
           </p>
 
-          <div className="flex justify-between mt-10 gap-10">
-            <div className="mt-auto">
-              <h4 className="text-xl font-bold">Tổng giám đốc</h4>
-              <h4 className="text-xl font-bold mb-1">Phan Bá Mạnh</h4>
-              <p className="mt-auto">
-                Hỗ trợ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
-                0974.479.642
+          <footer className="ticket-footer">
+            <div className="ticket-footer-left">
+              <div className="ticket-signature">
+                <span>Tổng giám đốc</span>
+                <strong>Phan Bá Mạnh</strong>
+              </div>
+              <p className="ticket-support">
+                <TicketIcon name="support" />
+                <span>
+                  <strong>Hỗ trợ đón tiếp:</strong> Bà Nguyễn Thị Hoa - Hành
+                  chính – Nhân sự · ĐT: 0974.479.642
+                </span>
               </p>
             </div>
-            <div>
-              <p className="mb-1 text-xs text-center">Quét để xem chi tiết</p>
-              <div className="bg-white size-[120px] relative p-2 rounded-lg">
-                <div
-                  style={{
-                    height: "auto",
-                    margin: "0 auto",
-                    maxWidth: 120,
-                    width: "100%",
-                  }}
-                >
-                  <QRCode
-                    size={256}
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                    value={`https://vemoi.anvui.vn/${id}`}
-                    viewBox={`0 0 256 256`}
-                    level="H"
-                  />
-                </div>
+            <div className="ticket-qr-group">
+              <div className="ticket-qr">
+                <QRCode
+                  size={256}
+                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                  value={`https://vemoi.anvui.vn/${id}`}
+                  viewBox="0 0 256 256"
+                  level="H"
+                />
               </div>
+              <p>Quét để xem chi tiết</p>
             </div>
-          </div>
+          </footer>
         </div>
       </div>
 
-      <div className="px-4 flex gap-2 mb-10">
-        <button
-          className="flex-1 py-2 px-5 rounded-full border border-[#06107C] text-[#06107C] font-semibold hover:opacity-80 cursor-pointer"
-          onClick={handleExport}
-        >
+      <div className="ticket-actions">
+        <button type="button" onClick={handleExport}>
           Tải vé xuống
         </button>
         <button
-          className="flex-1 py-2 px-5 rounded-full border bg-[#06107C] text-white font-semibold hover:opacity-80 cursor-pointer"
+          type="button"
+          className="ticket-map-button"
           onClick={() =>
             window.open(
               "https://www.google.com/maps/place/Tr%C3%A0ng+An+Palace/@21.002741,105.8055424,17z/data=!3m1!4b1!4m6!3m5!1s0x3135ad6f65c2afff:0x86b971cd73de1552!8m2!3d21.002741!4d105.8055424!16s%2Fg%2F11h0cf9sjn?entry=ttu&g_ep=EgoyMDI2MDkxMy4wIKXMDSoASAFQAw%3D%3D",
@@ -166,127 +241,7 @@ const TicketDetail = ({
           Di chuyển
         </button>
       </div>
-    </div>
-  ) : (
-    <div className="max-w-7xl mx-auto pt-28 py-10">
-      <div ref={divRef} className="text-white h-[850px] w-full flex relative">
-        <Image src="/assets/bg.png" alt="background" fill className="z-0" />
-        <Image
-          src="/assets/logo2.png"
-          alt="logo"
-          fill
-          className="z-0 opacity-8 object-contain"
-        />
-        <div className="relative z-50 w-[180px] flex items-center justify-center">
-          <div className="absolute right-0 top-0 bottom-0 w-[2px] bg-[repeating-linear-gradient(to_bottom,white_0,white_12px,transparent_12px,transparent_20px)]" />
-          <p className="text-6xl font-bold rotate-[270deg] whitespace-nowrap ml-6">
-            Mã số: {id}
-          </p>
-        </div>
-        <div className="relative z-50 p-16 flex flex-col h-full">
-          <div className="flex w-full justify-between">
-            <div>
-              <h2 className="font-bold text-5xl mt-10">VÉ MỜI SỰ KIỆN</h2>
-            </div>
-            <Image
-              src="/assets/logo2.png"
-              alt="background"
-              width={200}
-              height={200}
-              className="object-contain"
-            />
-          </div>
-          <div className="flex items-center mt-4">
-            <p className="w-[150px] font-bold">Kính mời: </p>
-            <p className="">
-              <strong className="text-2xl">
-                {fullName}
-                {nameSuffix ? ` (${nameSuffix})` : ""}
-              </strong>
-            </p>
-          </div>
-
-          <div className="flex items-center mt-4">
-            <p className="w-[150px] font-bold">Thời gian:</p>
-            <p className="font-bold">18h00 - Thứ Tư, ngày 23/09/2026</p>
-          </div>
-
-          <div className="flex items-start mt-4">
-            <p className="w-[150px] font-bold">Địa điểm:</p>
-            <div>
-              <p className="font-bold">
-                Hội trường Tràng An Place — Toà Hei Tower
-              </p>
-              <p className="text-sm">
-                Số 1 Nguỵ Như Kon Tum, phường Nhân Chính, quận Thanh Xuân, Hà
-                Nội
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center mt-4">
-            <p className="w-[150px] font-bold">Trang phục:</p>
-            <p>
-              Lịch sự để cùng Checkin kỉ niệm Sinh Nhật Công Ty, ưu tiên tông
-              màu Trắng
-            </p>
-          </div>
-
-          <p className="mt-6">
-            Mười một năm – một chặng đường không dài nhưng đủ để tập thể{" "}
-            <strong>AN VUI</strong> khẳng định bản lĩnh và khát vọng của mình.
-            Nhìn lại hành trình đã qua, chúng ta tự hào vì đã cùng nhau vượt qua
-            biết bao thử thách để hôm nay có thể ngồi lại, chia sẻ, và cùng nhau
-            viết tiếp những dấu mốc đáng nhớ. Cảm ơn những người đồng hành, hậu
-            phương vững chắc đã luôn hiện diện trong hành trình ấy. Chính sự gắn
-            bó và tin tưởng đã tạo nên sức mạnh cho <strong>AN VUI</strong>.
-            Chúng tôi trân trọng và mong được đón tiếp tại sự kiện kỷ niệm 11
-            năm đầy ý nghĩa này.
-          </p>
-
-          <div className="flex justify-between items-end mt-auto">
-            <div>
-              <h4 className="text-2xl font-bold">Tổng giám đốc</h4>
-              <h4 className="text-2xl font-bold mb-1">Phan Bá Mạnh</h4>
-              <p>
-                Hỗ trợ đón tiếp: Bà Nguyễn Thị Hoa - Hành chính – Nhân sự · ĐT:
-                0974.479.642
-              </p>
-            </div>
-            <div>
-              <p className="mb-1 text-sm text-center">Quét để xem chi tiết</p>
-              <div className="bg-white max-w-[150px] relative p-2 rounded-lg">
-                <div
-                  style={{
-                    height: "auto",
-                    margin: "0 auto",
-                    maxWidth: 150,
-                    width: "100%",
-                  }}
-                >
-                  <QRCode
-                    size={256}
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                    value={`https://vemoi.anvui.vn/${id}`}
-                    viewBox={`0 0 256 256`}
-                    level="H"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 flex justify-end">
-        <button
-          className="py-3 px-5 rounded-full border border-[#06107C] text-[#06107C] font-semibold hover:opacity-80 cursor-pointer"
-          onClick={handleExport}
-        >
-          Tải vé xuống
-        </button>
-      </div>
-    </div>
+    </main>
   );
 };
 

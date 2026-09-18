@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import "lenis/dist/lenis.css";
-import Header from "@/components/header";
+import SiteLayout from "@/components/site-layout";
 import SmoothScrollProvider from "@/components/smooth-scroll-provider";
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -54,8 +54,7 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${beVietnamPro.variable} antialiased`}>
         <SmoothScrollProvider />
-        <Header />
-        {children}
+        <SiteLayout>{children}</SiteLayout>
       </body>
     </html>
   );

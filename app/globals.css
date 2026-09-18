@@ -40,3 +40,36 @@ select {
   );
   background-clip: content-box;
 }
+
+.site-container {
+  width: min(100% - 76px, 1320px);
+  margin-inline: auto;
+}
+
+@media (max-width: 767px) {
+  .site-container {
+    width: min(100% - 40px, 600px);
+  }
+}
+
+.site-header--dark,
+.site-header--light {
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  transition: background 300ms ease, backdrop-filter 300ms ease,
+    -webkit-backdrop-filter 300ms ease, border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.site-header--dark.is-scrolled {
+  background: rgba(5, 22, 61, 0.55);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(1, 9, 30, 0.1);
+}
+
+.site-header--light.is-scrolled {
+  background: rgba(255, 255, 255, 0.72);
+  border-bottom-color: rgba(5, 22, 61, 0.08);
+  box-shadow: 0 8px 24px rgba(1, 9, 30, 0.07);
+}

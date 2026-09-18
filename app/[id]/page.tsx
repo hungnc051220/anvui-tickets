@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ download?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guest = await getGuest((await params).id);
@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Detail({ params }: Props) {
+export default async function Detail({ params, searchParams }: Props) {
   const guest = await getGuest((await params).id);
   if (!guest) notFound();
-  return <TicketDetail id={guest.id} fullName={guest.fullName} nameSuffix={guestNameSuffix(guest)} />;
+  return <TicketDetail id={guest.id} fullName={guest.fullName} nameSuffix={guestNameSuffix(guest)} autoDownload={(await searchParams).download === "1"} />;
 }
