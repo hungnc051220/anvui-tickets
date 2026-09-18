@@ -1,32 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { cancelRouteProgress, ROUTE_PROGRESS_END, startRouteProgress } from "@/lib/route-progress";
+import { FormEvent, useRef, useState } from "react";
 
 function LockIcon({ size = 24 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4.5" y="10" width="15" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /><circle cx="12" cy="15.5" r="1" /></svg>;
 }
 
-export default function GuestPasswordForm() {
-  const router = useRouter();
+export default function GuestPasswordForm({
+  onAuthenticated,
+}: {
+  onAuthenticated: () => Promise<void> | void;
+}) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const busyRef = useRef(false);
-  const navigatingRef = useRef(false);
-
-  useEffect(() => {
-    const onNavigationEnd = () => {
-      if (!navigatingRef.current) return;
-      navigatingRef.current = false;
-      busyRef.current = false;
-      setBusy(false);
-    };
-    window.addEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
-    return () => window.removeEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
-  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,13 +33,9 @@ export default function GuestPasswordForm() {
         const body = await response.json();
         throw new Error(body.error ?? "Không đăng nhập được.");
       }
-      navigatingRef.current = true;
-      startRouteProgress();
-      router.refresh();
+      await onAuthenticated();
     } catch (reason) {
-      navigatingRef.current = false;
       busyRef.current = false;
-      cancelRouteProgress();
       setBusy(false);
       setError(reason instanceof Error ? reason.message : "Không đăng nhập được.");
     }
