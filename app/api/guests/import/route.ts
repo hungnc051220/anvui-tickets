@@ -1,6 +1,7 @@
 import { isGuestListAuthorized, isSameOrigin } from "@/lib/auth";
 import { ImportValidationError, parseGuestsXlsx } from "@/lib/guest-import";
 import { saveGuests } from "@/lib/save-guests";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -28,7 +29,9 @@ export async function POST(request: Request) {
 
   try {
     const parsed = await parseGuestsXlsx(Buffer.from(await file.arrayBuffer()));
-    return NextResponse.json(await saveGuests(parsed));
+    const result = await saveGuests(parsed);
+    revalidatePath("/[id]", "page");
+    return NextResponse.json(result);
   } catch (error) {
     if (error instanceof ImportValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });

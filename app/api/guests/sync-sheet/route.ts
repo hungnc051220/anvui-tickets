@@ -2,6 +2,7 @@ import { isGuestListAuthorized, isSameOrigin } from "@/lib/auth";
 import { ImportValidationError } from "@/lib/guest-import";
 import { replaceGuests } from "@/lib/save-guests";
 import { parseSheetCsv } from "@/lib/sheet-import";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -27,7 +28,9 @@ export async function POST(request: Request) {
     if (Buffer.byteLength(csv, "utf8") > 4 * 1024 * 1024) {
       throw new ImportValidationError("Google Sheets vượt quá 4 MB.");
     }
-    return NextResponse.json(await replaceGuests(parseSheetCsv(csv)));
+    const result = await replaceGuests(parseSheetCsv(csv));
+    revalidatePath("/[id]", "page");
+    return NextResponse.json(result);
   } catch (error) {
     if (error instanceof ImportValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });

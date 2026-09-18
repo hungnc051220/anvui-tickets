@@ -61,12 +61,10 @@ const TicketDetail = ({
   id,
   fullName,
   nameSuffix,
-  autoDownload = false,
 }: {
   id?: string;
   fullName?: string;
   nameSuffix?: string | null;
-  autoDownload?: boolean;
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
   const autoDownloadStarted = useRef(false);
@@ -90,6 +88,7 @@ const TicketDetail = ({
   }, [id, fullName]);
 
   useEffect(() => {
+    const autoDownload = new URLSearchParams(window.location.search).get("download") === "1";
     if (!autoDownload || autoDownloadStarted.current) return;
     autoDownloadStarted.current = true;
     void (async () => {
@@ -98,7 +97,7 @@ const TicketDetail = ({
       await Promise.all(images.map((image) => image.decode().catch(() => undefined)));
       await handleExport();
     })();
-  }, [autoDownload, handleExport]);
+  }, [handleExport]);
 
   return (
     <main className="ticket-page">
