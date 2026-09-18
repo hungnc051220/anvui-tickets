@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import type { GuestDetail } from "@/lib/guests";
 import { guestNameSuffix } from "@/lib/guest-label";
 import { normalizeSearch } from "@/lib/search";
-import { cancelRouteProgress, ROUTE_PROGRESS_END, startRouteProgress } from "@/lib/route-progress";
 
 const PAGE_SIZE = 10;
 
@@ -32,8 +30,15 @@ function Icon({ name }: { name: IconName }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
 
-export default function GuestList({ guests }: { guests: GuestDetail[] }) {
-  const router = useRouter();
+export default function GuestList({
+  guests,
+  onReload,
+  onLoggedOut,
+}: {
+  guests: GuestDetail[];
+  onReload: () => Promise<void>;
+  onLoggedOut: () => void;
+}) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [file, setFile] = useState<File | null>(null);
@@ -41,18 +46,6 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
   const [error, setError] = useState("");
   const [result, setResult] = useState<ChangeResult | null>(null);
   const busyRef = useRef(false);
-  const awaitingRefreshRef = useRef(false);
-
-  useEffect(() => {
-    const onNavigationEnd = () => {
-      if (!awaitingRefreshRef.current) return;
-      awaitingRefreshRef.current = false;
-      busyRef.current = false;
-      setBusy(null);
-    };
-    window.addEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
-    return () => window.removeEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
-  }, []);
 
   function beginAction(action: "sync" | "import" | "logout") {
     if (busyRef.current) return false;
@@ -61,15 +54,7 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
     return true;
   }
 
-  function refreshWithProgress() {
-    awaitingRefreshRef.current = true;
-    startRouteProgress();
-    router.refresh();
-  }
-
-  function finishFailedAction() {
-    if (awaitingRefreshRef.current) cancelRouteProgress();
-    awaitingRefreshRef.current = false;
+  function finishAction() {
     busyRef.current = false;
     setBusy(null);
   }
@@ -98,14 +83,16 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
       const response = await fetch("/api/guests/sync-sheet", { method: "POST" });
       const body = await response.json();
       if (response.status === 401) {
-        refreshWithProgress();
+        finishAction();
+        onLoggedOut();
         return;
       }
       if (!response.ok) throw new Error(body.error ?? "Không đồng bộ được Google Sheets.");
       setResult(body as ChangeResult);
-      refreshWithProgress();
+      await onReload();
+      finishAction();
     } catch (reason) {
-      finishFailedAction();
+      finishAction();
       setError(reason instanceof Error ? reason.message : "Không đồng bộ được Google Sheets.");
     }
   }
@@ -123,16 +110,18 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
       const response = await fetch("/api/guests/import", { method: "POST", body: form });
       const body = await response.json();
       if (response.status === 401) {
-        refreshWithProgress();
+        finishAction();
+        onLoggedOut();
         return;
       }
       if (!response.ok) throw new Error(body.error ?? "Không import được file.");
       setResult(body as ChangeResult);
       setFile(null);
       formElement.reset();
-      refreshWithProgress();
+      await onReload();
+      finishAction();
     } catch (reason) {
-      finishFailedAction();
+      finishAction();
       setError(reason instanceof Error ? reason.message : "Không import được file.");
     }
   }
@@ -142,9 +131,10 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
     try {
       const response = await fetch("/api/guests/logout", { method: "POST" });
       if (!response.ok) throw new Error("Không thoát được danh sách.");
-      refreshWithProgress();
+      finishAction();
+      onLoggedOut();
     } catch (reason) {
-      finishFailedAction();
+      finishAction();
       setError(reason instanceof Error ? reason.message : "Không thoát được danh sách.");
     }
   }
