@@ -1,12 +1,18 @@
 import TicketDetail from "@/components/ticket-detail";
-import { getGuest } from "@/lib/guests";
+import { getGuest, getGuests } from "@/lib/guests";
 import { guestNameSuffix } from "@/lib/guest-label";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export const dynamicParams = true;
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ download?: string }> };
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateStaticParams() {
+  const guests = await getGuests();
+  return guests.map((guest) => ({ id: guest.id }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guest = await getGuest((await params).id);
@@ -18,8 +24,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Detail({ params, searchParams }: Props) {
+export default async function Detail({ params }: Props) {
   const guest = await getGuest((await params).id);
   if (!guest) notFound();
-  return <TicketDetail id={guest.id} fullName={guest.fullName} nameSuffix={guestNameSuffix(guest)} autoDownload={(await searchParams).download === "1"} />;
+
+  return (
+    <TicketDetail
+      id={guest.id}
+      fullName={guest.fullName}
+      nameSuffix={guestNameSuffix(guest)}
+    />
+  );
 }
