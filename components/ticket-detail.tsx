@@ -102,6 +102,15 @@ const TicketDetail = ({
 
   return (
     <main className="ticket-page">
+      <div className="ticket-page-heading">
+        <p className="ticket-page-eyebrow">CÙNG NHAU -</p>
+        <h2>ĐI XA HƠN</h2>
+        <p className="ticket-page-heading-subtitle">
+          <span>HÀNH TRÌNH 11 NĂM – VỮNG BƯỚC TƯƠNG LAI</span>
+        </p>
+      </div>
+
+      <div className="ticket-page-ticket-wrap">
       <div ref={divRef} className="event-ticket">
         <div className="ticket-anniversary" aria-hidden="true">
           11 YEARS
@@ -224,9 +233,13 @@ const TicketDetail = ({
           </footer>
         </div>
       </div>
+      </div>
 
       <div className="ticket-actions">
-        <button type="button" onClick={handleExport}>
+        <button type="button" className="ticket-download-button" onClick={handleExport}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
+          </svg>
           Tải vé xuống
         </button>
         <button
@@ -240,6 +253,12 @@ const TicketDetail = ({
         >
           Di chuyển
         </button>
+      </div>
+      <p className="ticket-page-helper">Lưu vé về thiết bị để tham dự sự kiện</p>
+
+      <div className="ticket-page-closing">
+        <p className="ticket-page-closing-title"><span>HẸN GẶP BẠN TẠI SỰ KIỆN</span></p>
+        <p>CÙNG NHAU KIẾN TẠO NHỮNG HÀNH TRÌNH Ý NGHĨA HƠN</p>
       </div>
     </main>
   );

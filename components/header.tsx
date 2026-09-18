@@ -12,7 +12,10 @@ export default function Header() {
   const router = useRouter();
   const isHome = pathname === "/";
   const isGuestList = pathname === "/khach-moi";
-  const useDarkHeader = isHome || isGuestList;
+  const isTicketDetail = /^\/[^/]+$/.test(pathname) && !isGuestList;
+  const [isGuestAccess, setIsGuestAccess] = useState(false);
+  const [isTicketAdmin, setIsTicketAdmin] = useState(false);
+  const useDarkHeader = isHome || (isGuestList && !isGuestAccess);
   const [open, setOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -29,8 +32,38 @@ export default function Header() {
   const previousOverflowRef = useRef("");
   const bodyLockedRef = useRef(false);
   const headerBackdropFilter = scrolled || menuVisible
-    ? "blur(14px) saturate(140%)"
+    ? `blur(${isGuestAccess && !menuVisible ? 3 : 4}px) saturate(140%)`
     : "blur(0px) saturate(100%)";
+
+  useEffect(() => {
+    if (!isGuestList) {
+      setIsGuestAccess(false);
+      return;
+    }
+    const updateGuestAccess = () =>
+      setIsGuestAccess(Boolean(document.querySelector(".guest-access")));
+    updateGuestAccess();
+    const observer = new MutationObserver(updateGuestAccess);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [isGuestList]);
+
+  useEffect(() => {
+    setIsTicketAdmin(false);
+    if (!isTicketDetail) return;
+
+    const controller = new AbortController();
+    fetch("/api/guests/session", { cache: "no-store", signal: controller.signal })
+      .then((response) => response.ok ? response.json() : null)
+      .then((session) => {
+        if (!controller.signal.aborted) setIsTicketAdmin(session?.authenticated === true);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setIsTicketAdmin(false);
+      });
+
+    return () => controller.abort();
+  }, [isTicketDetail, pathname]);
 
   const unlockBody = () => {
     if (!bodyLockedRef.current) return;
@@ -143,12 +176,6 @@ export default function Header() {
           },
           0.12,
         )
-        .fromTo(
-          cta,
-          { autoAlpha: 0, y: 8 },
-          { autoAlpha: 1, y: 0, duration: 0.36, ease: "power2.out" },
-          0.34,
-        )
         .to(
           topLine,
           { y: 6, rotation: 45, duration: 0.35, ease: "power2.inOut" },
@@ -164,6 +191,14 @@ export default function Header() {
           { y: -6, rotation: -45, duration: 0.35, ease: "power2.inOut" },
           0,
         );
+      if (cta) {
+        timeline.fromTo(
+          cta,
+          { autoAlpha: 0, y: 8 },
+          { autoAlpha: 1, y: 0, duration: 0.36, ease: "power2.out" },
+          0.34,
+        );
+      }
       menuTimelineRef.current = timeline;
     }, header);
 
@@ -302,12 +337,19 @@ export default function Header() {
                 ))}
           </nav>
           <div className="flex items-center gap-2">
-            {!isHome && (
+            {isGuestAccess && <span className="guest-access-header-pill"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 10h18m-12 4h2m3 0h2m-7 3h2" /></svg><span>11 NĂM VỮNG BƯỚC<br />NHIỀU HÀNH TRÌNH ĐẸP HƠN</span></span>}
+            {!isHome && !isTicketDetail && (
               <Link href="/" aria-label="Trở về trang chủ" className={`inline-flex h-10 w-10 items-center justify-center rounded-full border lg:hidden ${useDarkHeader ? "border-white/25 bg-white/5 text-white hover:bg-white/12" : "border-[#092450]/25 bg-[#092450]/5 text-[#092450] hover:bg-[#092450]/10"}`}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" /></svg>
               </Link>
             )}
-            <Link
+            {isTicketDetail && isTicketAdmin && (
+              <Link href="/khach-moi" aria-label="Quay lại danh sách" className="guest-access-header-pill ticket-list-header-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6M8 12h12" /></svg>
+                <span>Quay lại danh sách</span>
+              </Link>
+            )}
+            {!isTicketDetail && <Link
               href={isHome ? "/khach-moi" : "/"}
               className={`hidden shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold transition-colors lg:inline-flex ${isHome ? "bg-[#fff8e9] text-[#092450] shadow-md hover:bg-white" : useDarkHeader ? "border border-white/25 bg-white/5 text-white hover:bg-white/12" : "border border-[#092450]/25 bg-[#092450]/5 text-[#092450] hover:bg-[#092450]/10"}`}
             >
@@ -317,7 +359,7 @@ export default function Header() {
                   Trở về trang chủ
                 </>
               ) : "Danh sách khách mời"}
-            </Link>
+            </Link>}
             <button
               type="button"
               aria-label={open ? "Đóng menu" : "Mở menu"}
@@ -382,14 +424,14 @@ export default function Header() {
               {link.label}
             </a>
           ))}
-          <Link
-            href={isHome ? "/khach-moi" : "/"}
+          {(!isTicketDetail || isTicketAdmin) && <Link
+            href={isTicketDetail || isHome ? "/khach-moi" : "/"}
             data-menu-cta
             onClick={handleMenuLinkClick}
             className="mt-3 flex min-h-[50px] w-full items-center justify-center rounded-full bg-[linear-gradient(90deg,#f4c75d,#ffe19a)] px-4 text-center text-sm font-semibold text-[#092450]"
           >
-            {isHome ? "Danh sách khách mời" : "Trở về trang chủ"}
-          </Link>
+            {isTicketDetail ? "Quay lại danh sách" : isHome ? "Danh sách khách mời" : "Trở về trang chủ"}
+          </Link>}
         </nav>
       </header>
     </>

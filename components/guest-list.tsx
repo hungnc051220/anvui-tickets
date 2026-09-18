@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { GuestDetail } from "@/lib/guests";
 import { guestNameSuffix } from "@/lib/guest-label";
 import { normalizeSearch } from "@/lib/search";
+import { cancelRouteProgress, ROUTE_PROGRESS_END, startRouteProgress } from "@/lib/route-progress";
 
 const PAGE_SIZE = 10;
 
@@ -39,6 +40,39 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
   const [busy, setBusy] = useState<"sync" | "import" | "logout" | null>(null);
   const [error, setError] = useState("");
   const [result, setResult] = useState<ChangeResult | null>(null);
+  const busyRef = useRef(false);
+  const awaitingRefreshRef = useRef(false);
+
+  useEffect(() => {
+    const onNavigationEnd = () => {
+      if (!awaitingRefreshRef.current) return;
+      awaitingRefreshRef.current = false;
+      busyRef.current = false;
+      setBusy(null);
+    };
+    window.addEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
+    return () => window.removeEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
+  }, []);
+
+  function beginAction(action: "sync" | "import" | "logout") {
+    if (busyRef.current) return false;
+    busyRef.current = true;
+    setBusy(action);
+    return true;
+  }
+
+  function refreshWithProgress() {
+    awaitingRefreshRef.current = true;
+    startRouteProgress();
+    router.refresh();
+  }
+
+  function finishFailedAction() {
+    if (awaitingRefreshRef.current) cancelRouteProgress();
+    awaitingRefreshRef.current = false;
+    busyRef.current = false;
+    setBusy(null);
+  }
 
   const filtered = useMemo(() => {
     const needle = normalizeSearch(query);
@@ -57,64 +91,61 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
   );
 
   async function syncSheet() {
+    if (!beginAction("sync")) return;
     setError("");
     setResult(null);
-    setBusy("sync");
     try {
       const response = await fetch("/api/guests/sync-sheet", { method: "POST" });
       const body = await response.json();
       if (response.status === 401) {
-        router.refresh();
-        throw new Error("Phiên xem danh sách đã hết hạn. Vui lòng nhập lại mật khẩu.");
+        refreshWithProgress();
+        return;
       }
       if (!response.ok) throw new Error(body.error ?? "Không đồng bộ được Google Sheets.");
       setResult(body as ChangeResult);
-      router.refresh();
+      refreshWithProgress();
     } catch (reason) {
+      finishFailedAction();
       setError(reason instanceof Error ? reason.message : "Không đồng bộ được Google Sheets.");
-    } finally {
-      setBusy(null);
     }
   }
 
   async function importGuests(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file) return;
+    if (!beginAction("import")) return;
     const formElement = event.currentTarget;
     setError("");
     setResult(null);
-    setBusy("import");
     try {
       const form = new FormData();
       form.append("file", file);
       const response = await fetch("/api/guests/import", { method: "POST", body: form });
       const body = await response.json();
       if (response.status === 401) {
-        router.refresh();
-        throw new Error("Phiên xem danh sách đã hết hạn. Vui lòng nhập lại mật khẩu.");
+        refreshWithProgress();
+        return;
       }
       if (!response.ok) throw new Error(body.error ?? "Không import được file.");
       setResult(body as ChangeResult);
       setFile(null);
       formElement.reset();
-      router.refresh();
+      refreshWithProgress();
     } catch (reason) {
+      finishFailedAction();
       setError(reason instanceof Error ? reason.message : "Không import được file.");
-    } finally {
-      setBusy(null);
     }
   }
 
   async function logout() {
-    setBusy("logout");
+    if (!beginAction("logout")) return;
     try {
       const response = await fetch("/api/guests/logout", { method: "POST" });
       if (!response.ok) throw new Error("Không thoát được danh sách.");
-      router.refresh();
+      refreshWithProgress();
     } catch (reason) {
+      finishFailedAction();
       setError(reason instanceof Error ? reason.message : "Không thoát được danh sách.");
-    } finally {
-      setBusy(null);
     }
   }
 
@@ -147,13 +178,13 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
                   placeholder="Nhập họ tên hoặc mã vé để tìm kiếm..."
                 />
               </div>
-              <button type="button" className="guest-sync" onClick={syncSheet} disabled={busy !== null}>
+              <button type="button" className="guest-sync" onClick={syncSheet} disabled={busy !== null} aria-busy={busy === "sync"}>
                 <Icon name="sync" />{busy === "sync" ? "Đang đồng bộ…" : "Đồng bộ"}
               </button>
             </div>
             <div className="guest-toolbar-meta">
               <p aria-live="polite">Hiển thị {filtered.length} / {guests.length} khách mời</p>
-              <button type="button" onClick={logout} disabled={busy !== null}><Icon name="sync" />Thoát danh sách</button>
+              <button type="button" onClick={logout} disabled={busy !== null} aria-busy={busy === "logout"}><Icon name="sync" />Thoát danh sách</button>
             </div>
           </div>
 
@@ -212,7 +243,7 @@ export default function GuestList({ guests }: { guests: GuestDetail[] }) {
             <a href="/api/guests/template">Tải file Excel mẫu</a>
             <form onSubmit={importGuests}>
               <label>Chọn file .xlsx<input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></label>
-              <button disabled={busy !== null || !file}>{busy === "import" ? "Đang import…" : "Import Excel"}</button>
+              <button disabled={busy !== null || !file} aria-busy={busy === "import"}>{busy === "import" ? "Đang import…" : "Import Excel"}</button>
             </form>
           </details>
         </section>
