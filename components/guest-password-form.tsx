@@ -23,7 +23,6 @@ export default function GuestPasswordForm() {
       navigatingRef.current = false;
       busyRef.current = false;
       setBusy(false);
-      setError("Không truy cập được danh sách. Vui lòng thử lại.");
     };
     window.addEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
     return () => window.removeEventListener(ROUTE_PROGRESS_END, onNavigationEnd);
