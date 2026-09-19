@@ -1,5 +1,10 @@
 import Image from "next/image";
 import AnniversaryMotion from "@/components/anniversary-motion";
+import EventProgramSection, {
+  EventSectionDivider,
+  EventSectionHeader,
+  EventSectionShell,
+} from "@/components/event-program-section";
 
 const MAPS_URL =
   "https://www.google.com/maps/place/Tr%C3%A0ng+An+Palace/@21.002741,105.8055424,17z";
@@ -62,14 +67,15 @@ const milestones = [
     image: "/images/anniversary/milestones/2025-certificate.png",
   },
   {
-    date: "2026",
-    title: "Kỷ niệm 11 năm AN VUI",
-    description: "Tiếp nối hành trình, vươn tầm tương lai.",
-    image: "/assets/logo2.png",
+    date: "01/07/2026",
+    title: "Ra mắt dịch vụ trung chuyển hành khách",
+    description:
+      "Hợp tác thành công với các Bến Xe ra mắt dịch vụ trung chuyển hành khách đô thị.",
+    image: "/assets/cityline.jpg",
   },
 ];
 const stats = [
-  { icon: "bus", value: "400+", label: "Nhà xe tin tưởng" },
+  { icon: "bus", value: "600+", label: "Nhà xe tin tưởng" },
   { icon: "network", value: "10.000+", label: "Phương tiện kết nối" },
   { icon: "users", value: "12 triệu", label: "Hành khách phục vụ" },
   { icon: "ticket", value: "1.000+", label: "Kênh bán vé" },
@@ -163,7 +169,7 @@ function MilestoneTimeline() {
     <section className="timeline-section" id="dau-moc">
       <div className="site-container">
         <div className="section-heading">
-          <h2>10 DẤU MỐC LÀM NÊN THƯƠNG HIỆU AN VUI</h2>
+          <h2>CÁC DẤU MỐC LÀM NÊN THƯƠNG HIỆU AN VUI</h2>
           <p>
             Từ một ý tưởng nhỏ đến nền tảng công nghệ số cho ngành vận tải hành
             khách tại Việt Nam
@@ -181,7 +187,6 @@ function MilestoneTimeline() {
                       src={item.image}
                       alt={item.title}
                       fill
-                      sizes="(max-width: 767px) 82px, 106px"
                       className={
                         item.date === "2026" ? "milestone-logo" : "milestone-photo"
                       }
@@ -271,13 +276,14 @@ export default function Home() {
         </div>
       </section>
       <MilestoneTimeline />
-      <section className="event-section" id="su-kien">
-        <div className="site-container event-layout">
-          <div className="event-info">
-            <h2>THÔNG TIN SỰ KIỆN</h2>
+      <EventSectionShell>
+        <EventSectionHeader />
+        <EventSectionDivider>THÔNG TIN THAM DỰ</EventSectionDivider>
+        <div className="site-container event-layout" data-event-layout>
+          <div className="event-info" data-event-info>
             <div className="event-details">
               {eventDetails.map((detail) => (
-                <div className="event-detail" key={detail.label}>
+                <div className="event-detail" key={detail.label} data-event-info-item>
                   <span className="event-icon">
                     <Icon name={detail.icon} />
                   </span>
@@ -295,13 +301,14 @@ export default function Home() {
                 href={MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-event-map-button
               >
                 <Icon name="pin" size={18} /> Xem trên Google Maps
               </a>
             </div>
           </div>
-          <div className="venue-gallery" id="hinh-anh">
-            <div className="venue-main venue-card">
+          <div className="venue-gallery" id="hinh-anh" data-event-venue>
+            <div className="venue-main venue-card" data-event-venue-main>
               <Image
                 src="/assets/background-home.jpg"
                 alt="Mặt ngoài tòa Hei Tower tại số 1 Ngụy Như Kon Tum"
@@ -323,7 +330,7 @@ export default function Home() {
               </div>
             </div>
             <div className="venue-side">
-              <div className="venue-card venue-detail-photo">
+              <div className="venue-card venue-detail-photo" data-event-venue-small>
                 <Image
                   src="/assets/Trang-An-Palace-Thanh-Xuan-12.jpg"
                   alt="Sảnh tiệc Tràng An Palace tại Thanh Xuân"
@@ -338,6 +345,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Mở bản đồ Tràng An Palace trên Google Maps"
+                data-event-venue-small
               >
                 <div className="map-grid" />
                 <span className="map-pin">
@@ -353,7 +361,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+        <EventProgramSection />
+      </EventSectionShell>
       <AnniversaryMotion />
     </main>
   );
